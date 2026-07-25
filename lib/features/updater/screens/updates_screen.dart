@@ -71,7 +71,7 @@ class UpdatesScreen extends ConsumerWidget {
             ),
             
             // Download Progress (if downloading)
-            if (state.status == UpdateStateStatus.downloading) ...[
+            if (state.status == UpdateStateStatus.downloading || state.status == UpdateStateStatus.paused) ...[
               const SizedBox(height: 24),
               Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -84,7 +84,7 @@ class UpdatesScreen extends ConsumerWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Downloading...',
+                            state.status == UpdateStateStatus.paused ? 'Paused' : 'Downloading...',
                             style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text('${(state.downloadProgress * 100).toStringAsFixed(1)}%'),
@@ -171,6 +171,10 @@ class UpdatesScreen extends ConsumerWidget {
         iconData = Icons.cloud_download_outlined;
         iconColor = colorScheme.primary;
         break;
+      case UpdateStateStatus.paused:
+        iconData = Icons.pause_circle_outline;
+        iconColor = colorScheme.secondary;
+        break;
       case UpdateStateStatus.downloaded:
         iconData = Icons.download_done;
         iconColor = Colors.green;
@@ -201,6 +205,7 @@ class UpdatesScreen extends ConsumerWidget {
       case UpdateStateStatus.upToDate: return 'SafeKey is up to date';
       case UpdateStateStatus.updateAvailable: return 'New Update Available';
       case UpdateStateStatus.downloading: return 'Downloading Update...';
+      case UpdateStateStatus.paused: return 'Download Paused';
       case UpdateStateStatus.downloaded: return 'Ready to Install';
       case UpdateStateStatus.installing: return 'Launching Installer...';
       case UpdateStateStatus.error: return 'Update Failed';
@@ -234,6 +239,23 @@ class UpdatesScreen extends ConsumerWidget {
             FilledButton.tonal(
               onPressed: () => notifier.pauseDownload(),
               child: const Text('Pause'),
+            ),
+            const SizedBox(width: 16),
+            TextButton(
+              onPressed: () => notifier.cancelDownload(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      
+      case UpdateStateStatus.paused:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FilledButton.icon(
+              onPressed: () => notifier.resumeDownload(),
+              icon: const Icon(Icons.play_arrow),
+              label: const Text('Resume'),
             ),
             const SizedBox(width: 16),
             TextButton(

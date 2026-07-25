@@ -13,8 +13,23 @@ class MarkdownViewer extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Pre-process HTML badges to standard Markdown format
+    var processedData = markdownData.replaceAllMapped(
+      RegExp(r'<img[^>]+>', caseSensitive: false),
+      (match) {
+        final imgTag = match.group(0)!;
+        final srcMatch = RegExp('src=["\']([^"\']+)["\']').firstMatch(imgTag);
+        final altMatch = RegExp('alt=["\']([^"\']+)["\']').firstMatch(imgTag);
+        final src = srcMatch?.group(1) ?? '';
+        final alt = altMatch?.group(1) ?? '';
+        return '![$alt]($src)';
+      },
+    );
+    // Strip common wrapper tags used for badges on GitHub
+    processedData = processedData.replaceAll(RegExp(r'<\/?(?:p|div)[^>]*>', caseSensitive: false), '');
+
     return MarkdownBody(
-      data: markdownData,
+      data: processedData,
       selectable: true,
       onTapLink: (text, href, title) async {
         if (href != null) {

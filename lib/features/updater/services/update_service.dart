@@ -31,6 +31,10 @@ class UpdateService {
             downloadProgress: 1.0,
           ));
           _notifyReadyToInstall();
+        } else if (update.status == TaskStatus.paused) {
+          _notifier.updateState(_notifier.currentState.copyWith(
+            status: UpdateStateStatus.paused,
+          ));
         } else if (update.status == TaskStatus.failed || update.status == TaskStatus.canceled) {
           _notifier.updateState(_notifier.currentState.copyWith(
             status: update.status == TaskStatus.canceled ? UpdateStateStatus.updateAvailable : UpdateStateStatus.error,

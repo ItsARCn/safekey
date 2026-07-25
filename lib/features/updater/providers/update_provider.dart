@@ -8,6 +8,7 @@ enum UpdateStateStatus {
   upToDate,
   updateAvailable,
   downloading,
+  paused,
   downloaded,
   installing,
   error

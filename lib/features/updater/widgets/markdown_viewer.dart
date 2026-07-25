@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class MarkdownViewer extends StatelessWidget {
@@ -22,6 +23,50 @@ class MarkdownViewer extends StatelessWidget {
             await launchUrl(uri, mode: LaunchMode.externalApplication);
           }
         }
+      },
+      imageBuilder: (uri, title, alt) {
+        final urlString = uri.toString();
+        // Detect SVG badges (shields.io) and standard SVGs
+        if (urlString.endsWith('.svg') || urlString.contains('shields.io')) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 6.0, bottom: 4.0),
+            child: SvgPicture.network(
+              urlString,
+              height: 24, // Standard badge height constraint
+              placeholderBuilder: (context) => const SizedBox(
+                width: 24,
+                height: 24,
+                child: Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+          );
+        }
+        
+        // Handle standard raster images with rounded corners
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.network(
+              urlString,
+              loadingBuilder: (context, child, progress) {
+                if (progress == null) return child;
+                return const Center(child: CircularProgressIndicator());
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 100,
+                  width: double.infinity,
+                  color: colorScheme.surfaceContainerHighest,
+                  child: const Icon(Icons.broken_image, size: 40),
+                );
+              },
+            ),
+          ),
+        );
       },
       styleSheet: MarkdownStyleSheet(
         p: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
@@ -73,6 +118,12 @@ class MarkdownViewer extends StatelessWidget {
               width: 1,
             ),
           ),
+        ),
+        tableBody: theme.textTheme.bodyMedium,
+        tableHead: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+        tableBorder: TableBorder.all(
+          color: colorScheme.outlineVariant,
+          width: 1,
         ),
       ),
     );

@@ -40,9 +40,20 @@ class MarkdownViewer extends StatelessWidget {
         }
       },
       imageBuilder: (uri, title, alt) {
-        final urlString = uri.toString();
-        // Detect SVG badges (shields.io) and standard SVGs
-        if (urlString.endsWith('.svg') || urlString.contains('shields.io')) {
+        var urlString = uri.toString();
+        final isBadge = urlString.contains('shields.io');
+        
+        // Convert shields.io SVG badges to PNG on the fly to avoid flutter_svg text rendering bugs on Android
+        if (isBadge && !urlString.contains('.png')) {
+           if (urlString.contains('?')) {
+             urlString = urlString.replaceFirst('?', '.png?');
+           } else {
+             urlString += '.png';
+           }
+        }
+
+        // Detect actual SVGs (not shields.io)
+        if (urlString.split('?').first.endsWith('.svg')) {
           return Padding(
             padding: const EdgeInsets.only(right: 6.0, bottom: 4.0),
             child: SvgPicture.network(
@@ -60,7 +71,29 @@ class MarkdownViewer extends StatelessWidget {
           );
         }
         
-        // Handle standard raster images with rounded corners
+        // Handle raster inline badges (including our converted shields.io PNGs)
+        if (isBadge) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 6.0, bottom: 4.0),
+            child: Image.network(
+              urlString,
+              height: 24,
+              loadingBuilder: (context, child, progress) {
+                if (progress == null) return child;
+                return const SizedBox(
+                  width: 24, height: 24,
+                  child: Padding(
+                    padding: EdgeInsets.all(4.0),
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                );
+              },
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 24),
+            ),
+          );
+        }
+
+        // Handle standard large raster images
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: ClipRRect(

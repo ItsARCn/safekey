@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:drift/drift.dart' as drift;
 import 'package:image_picker/image_picker.dart';
-import 'package:otpauth_migration/otpauth_migration.dart';
 import 'package:otpauth_migration/generated/GoogleAuthenticatorImport.pb.dart';
 import '../../core/providers.dart';
 import '../../database/database.dart';

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/update_provider.dart';
 import '../widgets/markdown_viewer.dart';
-import '../../settings/settings_screen.dart'; // Just to get some common styles if needed
 
 class UpdatesScreen extends ConsumerWidget {
   const UpdatesScreen({super.key});

@@ -6,13 +6,7 @@ import '../updater/widgets/update_floating_card.dart';
 import '../../core/providers.dart';
 import '../../widgets/totp_account_card.dart';
 import '../../database/database.dart';
-import 'package:base32/base32.dart';
 import 'package:drift/drift.dart' as drift;
-import 'package:file_selector/file_selector.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -23,7 +17,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   bool _isSearchExpanded = false;
-  Set<int> _selectedIds = {};
+  final Set<int> _selectedIds = {};
 
   void _toggleSelection(int id) {
     setState(() {
@@ -397,10 +391,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               } else {
                 bodyContent = ReorderableListView.builder(
                   buildDefaultDragHandles: false,
-                  onReorder: (oldIndex, newIndex) async {
-                    if (newIndex > oldIndex) {
-                      newIndex -= 1;
-                    }
+                  onReorderItem: (oldIndex, newIndex) async {
                     if (searchQuery.isNotEmpty || activeFilter != 'All') {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cannot reorder while filtering')));
                       return;

@@ -7,7 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:file_selector/file_selector.dart';
-import 'dart:typed_data';
 import '../../core/providers.dart';
 import '../../core/security_provider.dart';
 import '../updater/providers/update_provider.dart';
@@ -358,7 +357,12 @@ class SettingsScreen extends ConsumerWidget {
       if (context.mounted) Navigator.pop(context); // Close dialog
       
       final XFile xFile = XFile(tempFile.path);
-      final result = await Share.shareXFiles([xFile], text: 'SafeKey Database Backup');
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [xFile],
+          text: 'SafeKey Database Backup',
+        ),
+      );
       
       if (context.mounted && result.status == ShareResultStatus.success) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Database exported successfully')));
